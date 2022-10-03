@@ -668,6 +668,8 @@ function zvm_backward_kill_region() {
   CUTBUFFER=${BUFFER:$bpos:$((epos-bpos))}
   BUFFER="${BUFFER:0:$bpos}${BUFFER:$epos}"
   CURSOR=$bpos
+
+  printf %s "${CUTBUFFER}" | xsel -ib
 }
 
 # Remove all characters between the cursor position and the
@@ -690,6 +692,8 @@ function zvm_kill_line() {
   CUTBUFFER=${BUFFER:$bpos:$((epos-bpos))}$'\n'
   BUFFER="${BUFFER:0:$bpos}${BUFFER:$epos}"
   CURSOR=$bpos
+
+  printf %s "${CUTBUFFER}" | xsel -ib
 }
 
 # Remove all characters of the whole line.
@@ -705,6 +709,8 @@ function zvm_kill_whole_line() {
 
   BUFFER="${BUFFER:0:$bpos}${BUFFER:$epos}"
   CURSOR=$cpos
+
+  printf %s "${CUTBUFFER}" | xsel -ib
 }
 
 # Exchange the point and mark
@@ -1023,6 +1029,8 @@ function zvm_yank() {
     CUTBUFFER=${CUTBUFFER}$'\n'
   fi
   CURSOR=$bpos MARK=$epos
+
+  printf %s "${CUTBUFFER}" | xsel -ib
 }
 
 # Up case of the visual selection
@@ -1068,7 +1076,7 @@ function zvm_vi_yank() {
 # Put cutbuffer after the cursor
 function zvm_vi_put_after() {
   local head= foot=
-  local content=${CUTBUFFER}
+  local content=$(xsel -o)
   local offset=1
 
   if [[ ${content: -1} == $'\n' ]]; then
@@ -1120,7 +1128,7 @@ function zvm_vi_put_after() {
 # Put cutbuffer before the cursor
 function zvm_vi_put_before() {
   local head= foot=
-  local content=${CUTBUFFER}
+  local content=$(xsel -o)
 
   if [[ ${content: -1} == $'\n' ]]; then
     local pos=$CURSOR
@@ -1178,6 +1186,8 @@ function zvm_vi_delete() {
   BUFFER="${BUFFER:0:$bpos}${BUFFER:$epos}"
   CURSOR=$cpos
 
+  printf %s "${CUTBUFFER}" | xsel -ib
+
   zvm_exit_visual_mode ${1:-true}
 }
 
@@ -1220,6 +1230,8 @@ function zvm_vi_change() {
     zvm_reset_repeat_commands $ZVM_MODE c $ncount $ccount
   fi
 
+  printf %s "${CUTBUFFER}" | xsel -ib
+
   zvm_exit_visual_mode false
   zvm_select_vi_mode $ZVM_MODE_INSERT
 }
@@ -1237,6 +1249,8 @@ function zvm_vi_change_eol() {
 
   CUTBUFFER=${BUFFER:$bpos:$((epos-bpos))}
   BUFFER="${BUFFER:0:$bpos}${BUFFER:$epos}"
+
+  printf %s "${CUTBUFFER}" | xsel -ib
 
   zvm_reset_repeat_commands $ZVM_MODE c 0 $#CUTBUFFER
   zvm_select_vi_mode $ZVM_MODE_INSERT
